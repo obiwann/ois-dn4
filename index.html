@@ -9,6 +9,7 @@
 	    <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
 	    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css" />
 	    <script src="script.js"></script>
+	    <script src="http://d3js.org/d3.v3.min.js"></script>
 	    <meta name="viewport" content="width=device-width, initial-scale=1">
 	    <style>
 	  		body {padding: 10px;}
@@ -22,6 +23,9 @@
 			.label-oranzna { background-color: orange; color: white; } 
 			.label-rumena { background-color: yellow; color: white; } 
 			.label-zelena { background-color: green; color: white; } 
+			.chart rect {fill: steelblue;}
+			.chart text {fill: white;font: 10px sans-serif;text-anchor: end;}
+			.chart heading {fill: steelblue;font: 10px sans-serif;text-anchor: end;}
 	  	</style>
 	</head>
 
@@ -46,7 +50,6 @@
 				    	<ul class="nav navbar-nav">
 			    			<li class="active"><a href="#a">Kartoteka</a></li>
 			    			<li><a href="#b">EHR generator</a></li>
-			    			<li><a href="#c">O aplikaciji</a></li>
 						</ul>	
 					</div>
 				</div>	
@@ -67,7 +70,6 @@
 								<div class="dropdown">
 								<select class="form-control input-mini" id="seznamUporabnikov">
 									<option value=''>Izberi uporabnika</option>
-									<option value="4806e72a-a5b1-4f88-ac15-db84fd8cd195">Marija Novak</option>
 								</select></div>
 							</div>
 							<div class="col-md-12"><button id="ogledKartoteke" type="button" class="btn btn-success">Ogled kartoteke in diagnoza</button></div>
@@ -97,7 +99,7 @@
 						<div class="col-md-6">
 							<div class="panel panel-default">
 								<div class="panel-heading"><h3 class="panel-title">Graf temperatur</h3></div>
-								<div class="panel-body"></div>
+								<div class="panel-body" id="graf"><svg class="chart" id="grafTemperatur"></svg></div>
 							</div>
 						</div>
 						<div class="col-md-6">

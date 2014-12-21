@@ -1,4 +1,3 @@
-
 var baseUrl = 'https://rest.ehrscape.com/rest/v1';
 var queryUrl = baseUrl + '/query';
 
@@ -16,6 +15,14 @@ function getSessionId() {
         async: false
     });
     return response.responseJSON.sessionId;
+}
+
+function seznamUporabnikov()
+{
+	
+	$("#seznamUporabnikov").append('<option value="3760de76-c6fb-4adf-bab7-af701004543a">Zorko Chen</option>');
+	$("#seznamUporabnikov").append('<option value="63feb995-19bc-450f-99a7-0110ba3772a2">Jozefa Zhao</option>');
+	$("#seznamUporabnikov").append('<option value="30d29261-0f7e-4ffc-9ed4-aa2b50621cae">Valburga Liang	</option>');
 }
 
 function kreirajEHR()  {
@@ -93,6 +100,7 @@ function preberiEHR() {
 				$("#kartoteka").slideDown();
 				$("#diagnoza").slideDown();
 				preberiMeritve(ehrId);
+				narisiGraf(ehrId);
 			},
 			error: function(err) {
 				$("#obvestiloEHR").html('<div class="alert alert-danger" role="alert"> Napaka pri branju EHR: ' + JSON.parse(err.responseText).userMessage + "!");
@@ -181,20 +189,20 @@ function preberiMeritve(ehrId)
 
 	var AQL = 
 			"select " +
-		    "a_a/data[at0002]/events[at0003]/data[at0001]/items[at0004]/value/magnitude as temperatura, "+
-		    "a_d/data[at0001]/events[at0006]/data[at0003]/items[at0004]/value/magnitude as sis_tlak, "+
-		    "a_d/data[at0001]/events[at0006]/data[at0003]/items[at0005]/value/magnitude as dias_tlak, "+
-		    "a_b/data[at0002]/events[at0003]/data[at0001]/items[at0004, 'Body weight']/value/magnitude as teza, "+
-		    "a_c/data[at0001]/events[at0002]/data[at0003]/items[at0004, 'Body Height/Length']/value/magnitude as visina "+
-			"from EHR e[ehr_id/value='" + ehrId+ "'] "+
-			"contains COMPOSITION a "+
-			"contains ( "+
-			    "OBSERVATION a_a[openEHR-EHR-OBSERVATION.body_temperature.v1] and "+
-			    "OBSERVATION a_b[openEHR-EHR-OBSERVATION.body_weight.v1] and "+
-			    "OBSERVATION a_c[openEHR-EHR-OBSERVATION.height.v1] and "+
-			    "OBSERVATION a_d[openEHR-EHR-OBSERVATION.blood_pressure.v1]) "+
-			"order by a/context/start_time desc "+
-			"offset 0 limit 1 ";
+		    " a_a/data[at0002]/events[at0003]/data[at0001]/items[at0004]/value/magnitude as temperatura, "+
+		    " a_d/data[at0001]/events[at0006]/data[at0003]/items[at0004]/value/magnitude as sis_tlak, "+
+		    " a_d/data[at0001]/events[at0006]/data[at0003]/items[at0005]/value/magnitude as dias_tlak, "+
+		    " a_b/data[at0002]/events[at0003]/data[at0001]/items[at0004, 'Body weight']/value/magnitude as teza, "+
+		    " a_c/data[at0001]/events[at0002]/data[at0003]/items[at0004, 'Body Height/Length']/value/magnitude as visina "+
+			" from EHR e[ehr_id/value='" + ehrId+ "'] "+
+			" contains COMPOSITION a "+
+			" contains ( "+
+			    " OBSERVATION a_a[openEHR-EHR-OBSERVATION.body_temperature.v1] and "+
+			    " OBSERVATION a_b[openEHR-EHR-OBSERVATION.body_weight.v1] and "+
+			    " OBSERVATION a_c[openEHR-EHR-OBSERVATION.height.v1] and "+
+			    " OBSERVATION a_d[openEHR-EHR-OBSERVATION.blood_pressure.v1]) "+
+			" order by a/context/start_time desc "+
+			" offset 0 limit 1 ";
 		$.ajax({
 		    url: baseUrl + "/query?" + $.param({"aql": AQL}),
 		    type: 'GET',
@@ -281,12 +289,12 @@ function analiziraj(temperatura,itm){
 		sporocilo = "Lahko bolehate za " + recentDiseases[nevarnadrzava]+ ". Čimprej se posvetujte z vašim osebnim zdravnkiom in pozorno spremljajte simptome.";
 	else if(tezave>=3 && temperatura>38) {
 		if(bolehanje<=4)
-		sporocilo ="Svetujemo, da pocakate še nekaj dni. Če se stanje ne izboljšajo pojdite k osebnem zdravniku.";
+		sporocilo ="Svetujemo, da pocakate še nekaj dni. Če se stanje ne izboljša pojdite k osebnemu zdravniku.";
 		else
 		sporocilo ="Čimprej se posvetujte z vašim osebnim zdravnikom.";
 	}
 	else if(temperatura<37 && tezave<=2 && itm!=0 )
-	sporocilo="Ste zdravi, dobro se spočite in zaužite veliko vode. Vaš index telesne teže odstopa od povprečnega zato so vaše težave lahko povezane z telesno težo. Če se simptomi nadaljujejo se posvetujte z vašim osebnim zdravnikom.";
+	sporocilo="Ste zdravi, dobro se spočijte in zaužite veliko vode. Vaš indeks telesne teže odstopa od povprečnega, zato so vaše težave lahko povezane z telesno težo. Če se simptomi nadaljujejo se posvetujte z vašim osebnim zdravnikom.";
 	else 
 	sporocilo="Ste popolnoma zdravi. Kar tako naprej.";
 	
@@ -296,14 +304,87 @@ function analiziraj(temperatura,itm){
 	$("#rezultatDiagnoze").html(sporocilo);
 }
 
-/*var AQL = "select"+
-    "a_a/data[at0002]/events[at0003]/data[at0001]/items[at0004]/value/magnitude as temperatura," +
-    "a/context/start_time/value as context_start_time" +
-"from EHR e[ehr_id/value='"+ehrID+"']"+
-"contains COMPOSITION a"+
-"contains OBSERVATION a_a[openEHR-EHR-OBSERVATION.body_temperature.v1]"+
-"order by a/context/start_time desc"+
-"offset 0 limit 6";*/
+function graf(podatki,sirina)
+{
+	var width = sirina ,barHeight = 30, height = 300;
+	console.log(sirina);
+	var x = d3.scale.linear().range([0, width]);
+	var y = d3.scale.linear().range([0, height]);
+
+	var chart = d3.select(".chart").attr("width", width);
+
+	data = podatki;
+
+	x.domain([0, d3.max(data, function(d) { return d.value; })]);
+	y.domain([0, d3.max(data,function(d) {return d.date; })]);
+
+
+	chart.attr("height", barHeight * data.length);
+
+	var bar = chart.selectAll("g").data(data).enter().append("g").attr("transform", function(d, i) { return "translate(0," + i * barHeight + ")"; });
+	bar.append("rect").attr("width", function(d) { return x(d.value); }).attr("height", barHeight - 2);
+	bar.append("text")
+	  	.attr("x", "5px")
+	  	.style("text-anchor","start")
+		.attr("y", barHeight / 2)
+		.text(function(d) { return d.date; });
+
+	  bar.append("text")
+	      .attr("x", function(d) { return x(d.value) - 15; })
+	      .attr("y", barHeight / 2)
+	      .attr("dy", ".35em")
+	      .text(function(d) { return d.value + " °C"; });
+
+	function type(d) {
+	  d.value = +d.value;
+	  return d;
+	}
+}
+
+var data = [];
+function narisiGraf(ehrID)
+{
+	sessionId = getSessionId();	
+
+	var AQL = "select "+
+	    " a_a/data[at0002]/events[at0003]/data[at0001]/items[at0004]/value/magnitude as temperatura, " +
+	    " a/context/start_time/value as cas " +
+		" from EHR e[ehr_id/value='"+ehrID+"'] "+
+		" contains COMPOSITION a "+
+		" contains OBSERVATION a_a[openEHR-EHR-OBSERVATION.body_temperature.v1] "+
+		" order by a/context/start_time desc "+
+		" offset 0 limit 6 ";
+
+	$.ajax({
+	    url: baseUrl + "/query?" + $.param({"aql": AQL}),
+	    type: 'GET',
+	    headers: {"Ehr-Session": sessionId},
+	    success: function (rezultatAQL) {
+	    	
+	    	if (rezultatAQL) {
+	    		var poizvedba = rezultatAQL.resultSet;
+	    		var rezultat = []
+		        for (var i in poizvedba) {
+					data.push({ 
+			        "date": (poizvedba[i].cas).toString().substring(0,16).replace("T"," "),
+			        "value": (poizvedba[i].temperatura).toString(),
+			    	});
+		        }
+
+				graf(data,$("#graf").width());
+
+	    	} else {
+	    		$("#grafTemperatur").html("Ni podatkov!");
+	    	}
+
+	    },
+	    error: function(err) {
+			console.log(JSON.parse(err.responseText).userMessage);
+	    }
+	});
+
+}
+
 
 
 
@@ -349,7 +430,7 @@ function homeInit(pocisti)
 $(document).ready(function(){
 	homeInit();
 	$("#kartoteka,#diagnoza").hide();
-
+	seznamUporabnikov();
 	$("#title").hide();
     $("#title").show( "blind", {direction: "horizontal"}, 2000 );
 
@@ -361,10 +442,6 @@ $(document).ready(function(){
 	$("a[href*=b]").click(function(e) {
 	    e.preventDefault();
 	    window.open("generator.html","_self");
-	}); 
-	$("a[href*=c]").click(function(e) {
-	    e.preventDefault();
-	    alert('Still in progress');
 	}); 
 
 	$("#pocisti1").click(function()
@@ -422,4 +499,3 @@ function getAge(dateString)
     if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
     return age + " let";
 }
-
