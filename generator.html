@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	    <title>EHR samoanaliza zdravstvenega stanja</title>
+	    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+	    <script src="https://code.jquery.com/ui/1.11.2/jquery-ui.min.js"></script>
+	    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+	    <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+	    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css" />
+	    <script src="script.js"></script>
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+	    <style>
+	  		body {padding: 10px;}
+	  		.btn {margin-top: 10px;}
+	  		.obvestilo,.sporocilo {margin-top:10px; font-size: 12px !important;}
+	  		.label { display: inline-block !important; margin: 10px 0 10px 0; font-size: 12px;}
+	  		.naslov { padding-left: 30px;  }
+	  		.ui-datepicker { z-index: 99 !important; }
+	  	</style>
+	</head>
+
+	<body>
+		<div class="container">
+			<div class="page-header" id="title">
+			<h2><img src="scope_gray.png"/>
+			<span class="naslov"><strong>EHR</strong> samodiagnoza</span> <small></br></br>Pripomoček za hitro samodiagnozo zdravstvenega stanja</small></h2>
+			</div>
+
+			<nav class="navbar navbar-default navbar-static-top" role="navigation">
+				<div class="container-fluid">
+					<div class="navbar-header">
+				          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-6" aria-expanded="false">
+				            <span class="sr-only">Toggle navigation</span>
+				            <span class="icon-bar"></span>
+				            <span class="icon-bar"></span>
+				            <span class="icon-bar"></span>
+				          </button>
+	          			<a class="navbar-brand" href="#"><img src="scope_gray.png" height="20px" width="15px" /></a>
+	        		</div>
+					<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-6">
+				    	<ul class="nav navbar-nav">
+			    			<li><a href="#a">Kartoteka</a></li>
+			    			<li class="active"><a href="#b">EHR generator</a></li>
+			    			<li><a href="#c">O aplikaciji</a></li>
+						</ul>	
+					</div>
+				</div>	
+			</nav>
+		</div>
+		<div class="container">
+			<!--<div class="panel panel-default">
+			  <div class="panel-heading">
+			    <h3 class="panel-title">Obnovitev privzetih vrednosti</h3>
+			  </div>
+			  <div class="panel-body">
+			  	<div class="alert alert-default" role="alert">V primeru, da so bile predefinirane osebe nehote izbrisane jih lahko poustvarite</div>
+			  	<button type="button" class="btn btn-success">Obnovitev podatkov</button>
+			  </div>
+			</div>-->
+			<div id="obvestiloEHR"></div>
+			<div class="panel panel-primary">
+			  <div class="panel-heading">
+			    <h3 class="panel-title">Kreiraj EHR kartoteko - Osnovne informacije</h3>
+			  </div>
+			  <div class="panel-body">
+				<form>
+					<div class="row">
+						<div class="col-md-6"><span class="label label-primary">Ime</span><input id="ime" type="text" class="form-control input-mini" placeholder="Jože"></div>
+						<div class="col-md-6"><span class="label label-primary">Priimek</span><input id="priimek" type="text" class="form-control input-mini" placeholder="Novak"></div>
+					</div>
+
+					<div class="row">
+						</br>
+						<div class="col-md-6"><span class="label label-primary">Datum rojstva</span><input readonly="readonly" id="datumrojstva" type="text" class="form-control input-mini" placeholder="1991-05-15"><input type="hidden" name="datumRojstva" id="datumRojstva" /></div>
+						<div class="col-md-6"><span class="label label-primary">Čas rojstva</span><input id="casRojstva" type="text" class="form-control input-mini" placeholder="15:30"></div>
+					</div>
+					
+					<div class="row">
+						</br>
+						<div class="col-md-12 ">
+							<span class="label label-primary">Spol</span></br>
+							<label class="radio-inline"><input type="radio" name="gender" value="MALE" checked>Moski</label>
+							<label class="radio-inline"><input type="radio" name="gender" value="FEMALE">Ženski</label>
+						</div>
+					</div>
+							
+					
+					<div class="row">
+					</br></br>
+						<div class="col-md-12">
+							<button type="button" onclick="kreirajEHR()" class="btn btn-success">Ustvari EHR</button>
+							<button type="reset" id="pocisti1" class="btn btn-default">Počisti</button>
+						</div>
+					</div>
+					<span id="sporociloVnosEHR"></span>
+					</form>	
+			  	</div>
+			</div>
+
+			<div id="obvestiloVitalnihZnakov"></div>
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<div class="row">
+						<div class="col-md-8"><h3 class="panel-title">Dodaj meritve v kartoteko</h3></div>
+						<div class="col-md-4">
+							<div class="dropdown">
+							<select class="form-control input-mini" id="seznamUporabnikov" placeholder="Obstoječi uporabnik">
+								<option value=''>Izberi uporabnika</option>
+								<option value="4806e72a-a5b1-4f88-ac15-db84fd8cd195">Marija Novak</option>
+							</select>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="panel-body">
+					<form action="">
+						<span class="label label-primary">EHR ID</span>				
+						<input id="pacientEHR" type="text" class="form-control input-mini" placeholder="7b661e12-3a98-21ad-c29e-2dc9f5a3d885">
+
+						<span class="label label-primary">Telesna temperatura</span>				
+						<div class="input-group">	
+								<input id="temperatura" type="text" class="form-control" placeholder="36.5">
+								<span class="input-group-addon">°C</span>		
+						</div>
+
+						<span class="label label-primary">Telesna teža</span>				
+						<div class="input-group">
+							<input id="teza" type="text" class="form-control" placeholder="75">
+							<span class="input-group-addon">kg</span>		
+						</div>	
+
+						<span class="label label-primary">Telesna višina</span>				
+						<div class="input-group">
+							<input id="visina" type="text" class="form-control" placeholder="185">
+							<span class="input-group-addon">cm</span>		
+						</div>	
+
+						<span class="label label-primary">Krvni tlak (sistolični/diastolični)</span>				
+						<div class="input-group">
+							<input id="tlak" type="text" class="form-control" placeholder="120/60">
+							<span class="input-group-addon">mmHg</span>		
+						</div>
+
+						<div class="row">
+							<div class="col-md-2">
+								<span class="label label-primary">Datum meritve</span>
+								<input id="datummeritve" type="text" class="form-control" placeholder="2014-12-30">
+								<input type="hidden" name="datumMeritve" id="datumMeritve" />
+							</div>
+
+							<div class="col-md-2">
+								<span class="label label-primary">Čas meritve</span>
+								<input id="casMeritve" type="text" class="form-control" placeholder="15:50">
+							</div>
+
+							<div class="col-md-8">
+								<span class="label label-primary">Merilec (pusti prazno, če je merilec bolnik sam)  </span>
+								<input id="merilec" type="text" class="form-control" placeholder="Medicinska sestra Tanja">
+							</div>
+						</div>
+						
+
+						<button type="button" onclick="vnosVitalnihPodatkov()" class="btn btn-success">Dodaj vnos</button>
+						<button type="reset" id="pocisti2" class="btn btn-default">Počisti</button>
+
+						</br>
+						<span id="sporociloVnosVitalnihPodatkov"></span>
+					</form>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

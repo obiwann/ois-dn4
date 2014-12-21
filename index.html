@@ -1,91 +1,176 @@
-
 <!DOCTYPE html>
 <html>
 	<head>
 	    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-	    <title>EhrScape - Vnos in poizvedovanje po EHR podatkih</title>
+	    <title>EHR samoanaliza zdravstvenega stanja</title>
 	    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
-	    <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+	    <script src="https://code.jquery.com/ui/1.11.2/jquery-ui.min.js"></script>
 	    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
-	    <script src="demo.js"></script>
+	    <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+	    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css" />
+	    <script src="script.js"></script>
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
 	    <style>
 	  		body {padding: 10px;}
 	  		.btn {margin-top: 10px;}
-	  		.obvestilo {margin-left:10px;}
+	  		.obvestilo,.sporocilo {margin-top:10px; font-size: 12px !important;}
+	  		.label { display: inline-block !important; margin: 10px 0 10px 0; font-size: 12px;}
+	  		.naslov { padding-left: 30px;  }
+	  		.stanje { padding: 10px 10px; border-radius: 5px; margin: 5px 0; } 
+	  		.label-normalno { background-color: #ecf0f1; }
+	  		.label-opozorilo { background-color: #e74c3c; color: white; } 
+			.label-oranzna { background-color: orange; color: white; } 
+			.label-rumena { background-color: yellow; color: white; } 
+			.label-zelena { background-color: green; color: white; } 
 	  	</style>
 	</head>
+
 	<body>
-		<div class="page-header"><h2>Vnos in poizvedovanje po EHR podatkih <small>EhrScape platforma</small></h2></div>
-		<div class="row">
-			<div class="col-lg-6 col-md-6 col-sm-6">
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<div class="row">
-							<div class="col-lg-8 col-md-8 col-sm-8"><b>Kreiraj EHR zapis</b> za novega bolnika</div>
-							<div class="col-lg-4 col-md-4 col-sm-4"><select class="form-control input-sm" id="preberiPredlogoBolnika"><option value=""></option><option value="Pujsa,Pepa,1938-10-30T14:58">Pujsa Pepa</option></select></div>
-						</div>
-					</div>
-					<div class="panel-body">
-						<span class="label label-default">Ime</span><input id="kreirajIme" type="text" class="form-control input-mini" placeholder="Osama">
-						<span class="label label-default">Priimek</span><input id="kreirajPriimek" type="text" class="form-control" placeholder="Bin Laden">
-						<span class="label label-default">Datum rojstva</span><input id="kreirajDatumRojstva" type="text" class="form-control" placeholder="1957-03-10T09:08">
-						<button type="button" class="btn btn-primary btn-xs" onclick="kreirajEHRzaBolnika()">Dodaj osnovne podatke o bolniku</button><span id="kreirajSporocilo"></span>
-				  	</div>
-				</div>
+		<div class="container">
+			<div class="page-header" id="title">
+	  		<h2><img src="scope_gray.png"/><span class="naslov"><strong>EHR</strong> samodiagnoza</span> <small></br></br>Pripomoček za hitro samodiagnozo zdravstvenega stanja</small></h2>
 			</div>
-			<div class="col-lg-6 col-md-6 col-sm-6">
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<div class="row">
-							<div class="col-lg-8 col-md-8 col-sm-8"><b>Preberi EHR zapis</b> obstoječega bolnika</div>
-							<div class="col-lg-4 col-md-4 col-sm-4"><select class="form-control input-sm" id="preberiObstojeciEHR"><option value=""></option><option value="254f791d-2e7c-49d9-b646-376f62d6ead5">Dejan Lavbič</option><option value="d564c6a3-5a43-4fcc-bfa7-9ac76e9673bd">Pujsa Pepa</option><option value="b931580f-2b05-488b-985b-8d9ffb08ad02">Ata Smrk</option></select></div>
-						</div>
+
+			<nav class="navbar navbar-default navbar-static-top" role="navigation">
+				<div class="container-fluid">
+					<div class="navbar-header">
+				          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-6" aria-expanded="false">
+				            <span class="sr-only">Toggle navigation</span>
+				            <span class="icon-bar"></span>
+				            <span class="icon-bar"></span>
+				            <span class="icon-bar"></span>
+				          </button>
+	          			<a class="navbar-brand" href="#"><img src="scope_gray.png" height="20px" width="15px" /></a>
+	        		</div>
+					<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-6">
+				    	<ul class="nav navbar-nav">
+			    			<li class="active"><a href="#a">Kartoteka</a></li>
+			    			<li><a href="#b">EHR generator</a></li>
+			    			<li><a href="#c">O aplikaciji</a></li>
+						</ul>	
 					</div>
-					<div class="panel-body">
-						<span class="label label-default">EHR ID</span><input id="preberiEHRid" type="text" class="form-control input-mini" placeholder="7b661e12-3a98-21ad-c29e-2dc9f5a3d885">
-						<button type="button" class="btn btn-primary btn-xs" onclick="preberiEHRodBolnika()">Preberi osnovne podatke o bolniku</button><span id="preberiSporocilo"></span>
-				  	</div>
-				</div>
-			</div>
+				</div>	
+			</nav>
 		</div>
-		<div class="row">
-			<div class="col-lg-6 col-md-6 col-sm-6">
-				<div class="panel panel-default">
-					<div class="panel-heading">
+		<div class="container">
+			<div id="obvestiloEHR"></div>
+			<div class="panel panel-primary">
+				<div class="panel-heading"><h3 class="panel-title">Izberi osebo za ogled kartoteke</h3></div>
+				<div class="panel-body">
+					<form>
 						<div class="row">
-							<div class="col-lg-8 col-md-8 col-sm-8"><b>Vnos</b> meritve <b>vitalnih znakov</b> bolnika</div>
-							<div class="col-lg-4 col-md-4 col-sm-4"><select class="form-control input-sm" id="preberiObstojeciVitalniZnak"><option value=""></option><option value="b931580f-2b05-488b-985b-8d9ffb08ad02|2014-11-21T11:40Z|185|80.0|36.50|118|92|98|medicinska sestra Smrketa">Ata Smrk</option></select></div>
+							<div class="col-md-6">
+								<span class="label label-primary">EHR pacienta</span><input id="pacientEHR" type="text" class="form-control input-mini" placeholder="7b661e12-3a98-21ad-c29e-2dc9f5a3d885">
+							</div>
+							<div class="col-md-6">
+								<span class="label label-primary">Seznam obstoječih oseb</span></br>
+								<div class="dropdown">
+								<select class="form-control input-mini" id="seznamUporabnikov">
+									<option value=''>Izberi uporabnika</option>
+									<option value="4806e72a-a5b1-4f88-ac15-db84fd8cd195">Marija Novak</option>
+								</select></div>
+							</div>
+							<div class="col-md-12"><button id="ogledKartoteke" type="button" class="btn btn-success">Ogled kartoteke in diagnoza</button></div>
 						</div>
-					</div>				
-					<div class="panel-body">
-						<span class="label label-default">EHR ID</span><input id="dodajVitalnoEHR" type="text" class="form-control input-mini" placeholder="7b661e12-3a98-21ad-c29e-2dc9f5a3d885">
-						<span class="label label-default">Datum in ura</span><input id="dodajVitalnoDatumInUra" type="text" class="form-control input-mini" placeholder="2014-11-21T11:40Z">
-						<span class="label label-default">Telesna višina</span><div class="input-group"><input id="dodajVitalnoTelesnaVisina" type="text" class="form-control input-mini" placeholder="185"><span class="input-group-addon">cm</span></div>
-						<span class="label label-default">Telesna teža</span><div class="input-group"><input id="dodajVitalnoTelesnaTeza" type="text" class="form-control input-mini" placeholder="80.00"><span class="input-group-addon">kg</span></div>
-						<span class="label label-default">Telesna temperatura</span><div class="input-group"><input id="dodajVitalnoTelesnaTemperatura" type="text" class="form-control input-mini" placeholder="36.50"><span class="input-group-addon">°C</span></div>
-						<span class="label label-default">Sistolični krvni tlak</span><div class="input-group"><input id="dodajVitalnoKrvniTlakSistolicni" type="text" class="form-control input-mini" placeholder="118"><span class="input-group-addon">mm Hg</span></div>
-						<span class="label label-default">Diastolični krvni tlak</span><div class="input-group"><input id="dodajVitalnoKrvniTlakDiastolicni" type="text" class="form-control input-mini" placeholder="92"><span class="input-group-addon">mm Hg</span></div>
-						<span class="label label-default">Nasičenost krvi s kisikom</span><div class="input-group"><input id="dodajVitalnoNasicenostKrviSKisikom" type="text" class="form-control input-mini" placeholder="98"><span class="input-group-addon">%</span></div>
-						<span class="label label-default">Merilec</span><input id="dodajVitalnoMerilec" type="text" class="form-control input-mini" placeholder="medicinska sestra Hrastova Micka">
-						<button type="button" class="btn btn-primary btn-xs" onclick="dodajMeritveVitalnihZnakov()">Dodaj meritve vitalnih znakov</button><span id="dodajMeritveVitalnihZnakovSporocilo"></span>
-				  	</div>
+						<span id="sporociloVnosEHR"></span>
+					</form>	
 				</div>
-			</div>	
-			<div class="col-lg-6 col-md-6 col-sm-6">
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<div class="row">
-							<div class="col-lg-6 col-md-6 col-sm-6"><b>Pregled</b> meritev <b>vitalnih znakov</b> bolnika</div>
-							<div class="col-lg-3 col-md-3 col-sm-3"><select class="form-control input-sm" id="preberiTipZaVitalneZnake"><option value="telesna temperatura">telesna temperatura</option><option value="telesna temperatura AQL">telesna temperatura (filter na podhladitev)</option><option value="telesna teža">telesna teža</option></select></div>
-							<div class="col-lg-3 col-md-3 col-sm-3"><select class="form-control input-sm" id="preberiEhrIdZaVitalneZnake"><option value=""></option><option value="b931580f-2b05-488b-985b-8d9ffb08ad02">Ata Smrk</option><option value="d564c6a3-5a43-4fcc-bfa7-9ac76e9673bd">Pujsa Pepa</option></select></div>
+			</div>
+
+			<div class="panel panel-primary" id="kartoteka">
+				<div class="panel-heading"><h3 class="panel-title">Kartoteka</h3></div>
+				<div class="panel-body">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="panel panel-default">
+								<div class="panel-heading"><h3 class="panel-title">Osnovni podatki o bolniku</h3></div>
+								<div class="panel-body">
+									<div class="col-md-3">Ime: <span id="ime"></span></div>
+									<div class="col-md-3">Priimek: <span id="priimek"></span></div>
+									<div class="col-md-3">Spol: <span id="spol"></span></div>
+									<div class="col-md-3">Starost: <span id="starost"></span></div>
+								</div>
+							</div>
 						</div>
-					</div>				
-					<div class="panel-body">
-						<span class="label label-default">EHR ID</span><input id="meritveVitalnihZnakovEHRid" type="text" class="form-control input-mini" placeholder="7b661e12-3a98-21ad-c29e-2dc9f5a3d885">
-						<button type="button" class="btn btn-primary btn-xs" onclick="preberiMeritveVitalnihZnakov('telesna temperatura')">Preberi meritve vitalnih znakov</button><span id="preberiMeritveVitalnihZnakovSporocilo"></span>
-						<div id="rezultatMeritveVitalnihZnakov"></div>
-				  	</div>
-				</div>			
+					</div>
+					<div class="row">
+						<div class="col-md-6">
+							<div class="panel panel-default">
+								<div class="panel-heading"><h3 class="panel-title">Graf temperatur</h3></div>
+								<div class="panel-body"></div>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="panel panel-default">
+								<div class="panel-heading"><h3 class="panel-title">Preteklo zdravstveno stanje</h3></div>
+								<div class="panel-body" id="podatkiMeritev">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="panel panel-primary" id="diagnoza">
+				<div class="panel-heading"><h3 class="panel-title">Samoanaliza uporabnika</h3></div>
+				<div class="panel-body">
+			  		<div class="row">
+					</br></br>
+					<div class="col-md-6">
+						<div class="panel panel-default">
+					  		<div class="panel-heading"><h3 class="panel-title">Analiza trenutnega zdravstvenega stanja</h3></div>
+						 	<div class="panel-body">
+								<span>Ste v zadnjih treh mesecih kam potovali?</span></br></br>
+								<div class="dropdown">
+								  <select id="seznamDrzav" class="form-control input-mini"></select></br></br>
+								  <div id="trenutneBolezniSporocilo"></div>
+								</div>
+								<form action="">
+									<span>Imate težave z prebavo?</span></br>
+									<label class="radio-inline"><input type="radio" id="prebava" name="prebava" value="1">Da</label></br>
+									<label class="radio-inline"><input type="radio" name="prebava" value="0" checked>Ne</label></br></br>
+
+									<span>Se počutite brezvoljno?</span></br>
+									<label class="radio-inline"><input type="radio" id="utrujenost" name="utrujenost" value="1">Da</label></br>
+									<label class="radio-inline"><input type="radio" name="utrujenost" value="0" checked>Ne</label></br></br>
+
+									<span>Čutite bolečine v mišicah?</span></br>
+									<label class="radio-inline"><input type="radio" id="bolecine" name="bolecine" value="1">Da</label></br>
+									<label class="radio-inline"><input type="radio" name="bolecine" value="0" checked>Ne</label></br></br>
+
+									<span>Imate težave z želodcem?</span></br>
+									<label class="radio-inline"><input type="radio" id="zelodec" name="zelodec" value="1">Da</label></br>
+									<label class="radio-inline"><input type="radio" name="zelodec" value="0" checked>Ne</label></br></br>
+
+									<span>Imate na trenutke močan glavobol?</span></br>
+									<label class="radio-inline"><input type="radio" id="glavobol" name="glavobol" value="1">Da</label></br>
+									<label class="radio-inline"><input type="radio" name="glavobol" value="0" checked>Ne</label></br></br>
+
+									<span>Koliko časa že bolehate?</span></br>
+									<div class="input-group">
+									  <span class="input-group-addon">Število dni:</span>
+									  <input type="text" id="dnevi" class="form-control" placeholder="5">
+									</div>
+									</br>
+									<button type="button" id="postavidiagnozo"class="btn btn-success">Postavi samodiagnozo</button>
+									<button type="reset" id="pocisti" class="btn btn-default">Počisti</button>
+								</form>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="panel panel-default">
+					  		<div class="panel-heading"><h3 class="panel-title">Rezultat analize</h3></div>
+				  			<div class="panel-body">
+				  				<div class="alert alert-warning" role="alert">
+									Opozorilo! Aplikacija omogoča analizo informativne narave. Zanašanje na rezultate analize ni pripročljivo. Posvetujete se z vašim osebnim zdravnikom ali obiščite dežurnega zdravnika v vaši najbližji zdravstveni ustanovi.
+								</div>
+								<div class="alert alert-info" id="postavitevDiagnozeOpozorilo" role="alert">Da bi si ogledali rezultate samodiagnoze, izpolnite vprašalnik na levi strani in potrdite svoje odgovore.</div>
+								<div class="alert label-normalno" id="rezultatDiagnoze" role="alert"></div>
+				  			</div>
+				  		</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</body>
