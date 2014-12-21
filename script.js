@@ -235,6 +235,8 @@ function preberiMeritve(ehrId)
 
 			        // Pogoji
 			        $("body").bind("DOMNodeInserted", function() {
+			        
+
 						   if (poizvedba[0].temperatura > 37.0 || poizvedba[0].temperatura<35.0 )
 					        	$("#vTemp").addClass("label-opozorilo");
 					       else $("#vTemp").addClass("label-normalno");
